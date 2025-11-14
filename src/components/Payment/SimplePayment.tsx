@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Loader2, CreditCard, CheckCircle, AlertCircle } from 'lucide-react';
 import { redirectToStripeCheckout, verifyPayment } from '../../lib/payment';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface SimplePaymentProps {
   amount: number; // Amount in cents
@@ -17,6 +18,7 @@ export function SimplePayment({
   onPaymentComplete,
 }: SimplePaymentProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentVerified, setPaymentVerified] = useState(false);
@@ -93,7 +95,7 @@ export function SimplePayment({
           <h3 className="text-xl font-bold text-green-900 mb-2">Payment Successful!</h3>
           <p className="text-green-700 mb-4">Your payment has been verified and processed.</p>
           <button
-            onClick={() => (window.location.href = '/')}
+            onClick={() => navigate('/')}
             className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
           >
             Return Home

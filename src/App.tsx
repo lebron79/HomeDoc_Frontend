@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { AuthPage } from './components/Auth/AuthPage';
@@ -67,13 +67,14 @@ function MedicationsLayout({ children }: { children: React.ReactNode }) {
 
 // Unauthorized Page
 function UnauthorizedPage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50">
       <div className="text-center">
         <h1 className="text-4xl font-bold text-red-600 mb-4">Access Denied</h1>
         <p className="text-gray-600 mb-6">You don't have permission to access this page.</p>
         <button
-          onClick={() => window.location.href = '/'}
+          onClick={() => navigate('/')}
           className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
           Go Home
@@ -92,10 +93,19 @@ function AppContent() {
 
   return (
     <Router basename="/HomeDoc_Frontend">
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<LandingPage onGetStarted={() => window.location.href = '/login'} />} />
-        <Route path="/login" element={<AuthPage onBack={() => window.location.href = '/'} />} />
+      <RoutesContent user={user} profile={profile} />
+    </Router>
+  );
+}
+
+function RoutesContent({ user, profile }: { user: any; profile: any }) {
+  const navigate = useNavigate();
+
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<LandingPage onGetStarted={() => navigate('/login')} />} />
+      <Route path="/login" element={<AuthPage onBack={() => navigate('/')} />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
         {/* Protected Routes */}
@@ -290,7 +300,6 @@ function AppContent() {
           }
         />
       </Routes>
-    </Router>
   );
 }
 
