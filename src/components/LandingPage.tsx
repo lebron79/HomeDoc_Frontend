@@ -69,24 +69,24 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </div>
 
             <div className="hidden md:flex items-center space-x-6">
-              <a
-                href="#how-it-works"
+              <button
+                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
                 className="text-gray-700 hover:text-[#81171b] font-medium transition-colors px-3 py-2 rounded-lg hover:bg-red-50"
               >
                 How It Works
-              </a>
-              <a
-                href="#mission"
+              </button>
+              <button
+                onClick={() => document.getElementById('mission')?.scrollIntoView({ behavior: 'smooth' })}
                 className="text-gray-700 hover:text-[#81171b] font-medium transition-colors px-3 py-2 rounded-lg hover:bg-red-50"
               >
                 Our Mission
-              </a>
-              <a
-                href="#testimonials"
+              </button>
+              <button
+                onClick={() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' })}
                 className="text-gray-700 hover:text-[#81171b] font-medium transition-colors px-3 py-2 rounded-lg hover:bg-red-50"
               >
                 Testimonials
-              </a>
+              </button>
               {user ? (
                 <>
                   <button
