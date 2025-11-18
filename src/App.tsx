@@ -17,6 +17,7 @@ import { MedicationStore } from './pages/MedicationStorePage';
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
 import { PaymentCanceledPage } from './pages/PaymentCanceledPage';
 import { OrderHistoryPage } from './pages/OrderHistoryPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { HeartbeatLoader } from './components/Layout/HeartbeatLoader';
 import { CreateCaseForm } from './components/Patient/CreateCaseForm';
 import { PatientCasesList } from './components/Patient/PatientCasesList';
@@ -108,6 +109,7 @@ function AppContent() {
         {/* Public Routes */}
         <Route path="/" element={<LandingPageWrapper />} />
         <Route path="/login" element={<AuthPageWrapper />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
         {/* Protected Routes */}
