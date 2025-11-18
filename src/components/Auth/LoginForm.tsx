@@ -62,11 +62,11 @@ export function LoginForm({ onBack }: { onBack: () => void }) {
     setResetLoading(true);
 
     try {
-      // Determine the correct redirect URL based on environment
+      // Use a static HTML redirect page that forwards to the hash route
       const isLocal = window.location.hostname === 'localhost';
       const redirectUrl = isLocal 
-        ? 'http://localhost:5173/HomeDoc/#/reset-password'
-        : 'https://lebron79.github.io/HomeDoc/#/reset-password';
+        ? 'http://localhost:5173/HomeDoc/reset-password.html'
+        : 'https://lebron79.github.io/HomeDoc/reset-password.html';
 
       const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
         redirectTo: redirectUrl,
