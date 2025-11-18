@@ -20,15 +20,11 @@ export function ResetPasswordPage() {
       // URL format: /#/reset-password?access_token=...&type=recovery
       const fullHash = window.location.hash; // Gets #/reset-password?access_token=...
       
-      console.log('Full hash:', fullHash);
-      
       // Split by ? to get query params
       const questionMarkIndex = fullHash.indexOf('?');
       if (questionMarkIndex > 0) {
         const queryString = fullHash.substring(questionMarkIndex + 1);
         const params = new URLSearchParams(queryString);
-        
-        console.log('Query params:', Object.fromEntries(params));
         
         const urlError = params.get('error');
         if (urlError) {
@@ -40,27 +36,20 @@ export function ResetPasswordPage() {
         const refreshToken = params.get('refresh_token');
         const type = params.get('type');
         
-        console.log('Token type:', type, 'Has access token:', !!accessToken, 'Has refresh token:', !!refreshToken);
-        
         if (type === 'recovery' && accessToken && refreshToken) {
           // Set the session with the recovery token
           try {
-            console.log('Setting session with recovery token...');
-            const { data, error } = await supabase.auth.setSession({
+            const { error } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken,
             });
             
             if (error) {
-              console.error('Session error:', error);
               setError('Failed to validate reset link: ' + error.message);
             } else {
-              console.log('Session set successfully:', data);
-              // Session set successfully, user can now reset password
               setError('');
             }
           } catch (err: any) {
-            console.error('Session exception:', err);
             setError('Failed to validate reset link');
           }
           return;
@@ -98,7 +87,6 @@ export function ResetPasswordPage() {
 
       // Otherwise check if we have a valid session
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('Final session check:', session);
       if (!session) {
         setError('Invalid or expired reset link. Please request a new password reset.');
       }
@@ -130,16 +118,12 @@ export function ResetPasswordPage() {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
-        console.error('Session check error:', sessionError);
         throw new Error('Session validation failed. Please click the reset link from your email again.');
       }
       
       if (!session) {
-        console.error('No active session found');
         throw new Error('No active session. Please click the reset link from your email again.');
       }
-      
-      console.log('Session found, updating password...');
       
       const { error } = await supabase.auth.updateUser({
         password: password,
@@ -155,7 +139,6 @@ export function ResetPasswordPage() {
         navigate('/login');
       }, 2000);
     } catch (err: any) {
-      console.error('Password update error:', err);
       setError(err.message || 'Failed to update password');
     } finally {
       setLoading(false);
