@@ -14,12 +14,26 @@ export function ResetPasswordPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if we have a valid session from the reset link
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Handle the password recovery from URL
+    const handleRecovery = async () => {
+      // Check if we have a recovery token in the URL (from email link)
+      const hashParams = new URLSearchParams(window.location.hash.substring(window.location.hash.indexOf('?')));
+      const accessToken = hashParams.get('access_token');
+      const type = hashParams.get('type');
+
+      if (type === 'recovery' && accessToken) {
+        // Token is valid, user can reset password
+        return;
+      }
+
+      // Otherwise check if we have a valid session
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         setError('Invalid or expired reset link. Please request a new password reset.');
       }
-    });
+    };
+
+    handleRecovery();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
