@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+  <script>
+    // This handles email confirmation redirects from Supabase
+    // Supabase redirects to root domain, we need to forward to /HomeDoc/
+    const hash = window.location.hash;
+    
+    if (hash && hash.includes('access_token=')) {
+      // Forward to the correct base path with the auth token
+      window.location.href = window.location.origin + '/HomeDoc/' + hash;
+    } else {
+      // Normal redirect to HomeDoc
+      window.location.href = window.location.origin + '/HomeDoc/';
+    }
+  </script>
+</head>
+<body>
+  <p>Redirecting...</p>
+</body>
+</html>
