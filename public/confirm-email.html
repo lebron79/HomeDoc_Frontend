@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Confirming Email...</title>
+  <script>
+    // This page handles email confirmation from Supabase
+    // Get the hash fragment that contains the auth tokens
+    const hash = window.location.hash;
+    
+    // Redirect to the main app with the tokens
+    if (hash) {
+      window.location.href = window.location.origin + '/HomeDoc/' + hash;
+    } else {
+      window.location.href = window.location.origin + '/HomeDoc/';
+    }
+  </script>
+</head>
+<body>
+  <p>Confirming your email...</p>
+</body>
+</html>
