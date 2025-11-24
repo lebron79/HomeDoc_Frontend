@@ -14,7 +14,9 @@ import {
   Loader2,
   Eye,
   UserCheck,
-  Filter
+  Filter,
+  Trash2,
+  User
 } from 'lucide-react';
 
 interface MedicalCase {
@@ -152,6 +154,7 @@ export function DoctorCasesList({ onOpenChat }: DoctorCasesListProps = {}) {
           patient:user_profiles!medical_cases_patient_id_fkey(full_name, age)
         `)
         .or(`status.eq.pending,doctor_id.eq.${profile.id}`)
+        .is('hidden_from_doctor', null)
         .order('emergency_level', { ascending: false })
         .order('created_at', { ascending: false });
 
@@ -220,6 +223,28 @@ export function DoctorCasesList({ onOpenChat }: DoctorCasesListProps = {}) {
       await loadCases();
     } catch (error) {
       console.error('Error updating case:', error);
+    }
+  };
+
+  const handleDeleteCase = async (caseId: string, patientName: string) => {
+    if (!confirm(`Are you sure you want to delete the case for ${patientName}? This will hide it from your view but remain visible to admins.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('medical_cases')
+        .update({ 
+          hidden_from_doctor: true,
+          status: 'cancelled'
+        })
+        .eq('id', caseId);
+
+      if (error) throw error;
+      await loadCases();
+    } catch (error) {
+      console.error('Error deleting case:', error);
+      alert('Failed to delete case. Please try again.');
     }
   };
 
@@ -311,16 +336,28 @@ export function DoctorCasesList({ onOpenChat }: DoctorCasesListProps = {}) {
                       </span>
                     </div>
                     {caseItem.patient && (
-                      <p className="text-sm text-gray-600">
-                        Patient: {caseItem.patient.full_name}
-                        {caseItem.patient.age && `, Age: ${caseItem.patient.age}`}
-                      </p>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <User className="w-4 h-4" />
+                        <span className="font-medium">{caseItem.patient.full_name}</span>
+                        {caseItem.patient.age && (
+                          <span className="text-gray-500">• Age: {caseItem.patient.age}</span>
+                        )}
+                      </div>
                     )}
                     <p className="text-sm text-gray-500">
                       Created {new Date(caseItem.created_at).toLocaleString()}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
+                    {caseItem.doctor_id === profile?.id && (
+                      <button
+                        onClick={() => handleDeleteCase(caseItem.id, caseItem.patient?.full_name || 'this patient')}
+                        className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete case (hide from your view)"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    )}
                     {caseItem.status === 'pending' && (
                       <button
                         onClick={() => handleAcceptCase(caseItem.id)}
