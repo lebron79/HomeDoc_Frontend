@@ -1,16 +1,15 @@
 -- Allow doctors to view patient profiles through medical cases
 -- This enables doctors to see patient names in the cases list
 
+-- Drop the policy if it already exists
+DROP POLICY IF EXISTS "Doctors can view patients through cases" ON user_profiles;
+
 CREATE POLICY "Doctors can view patients through cases" ON user_profiles
   FOR SELECT USING (
-    role = 'patient' AND
-    EXISTS (
-      SELECT 1 FROM medical_cases
-      WHERE medical_cases.patient_id = user_profiles.id 
-      AND (
-        medical_cases.status = 'pending' 
-        OR medical_cases.doctor_id = auth.uid()
-      )
+    id IN (
+      SELECT patient_id FROM medical_cases
+      WHERE (status = 'pending' OR doctor_id = auth.uid())
+      AND patient_id IS NOT NULL
     )
   );
 

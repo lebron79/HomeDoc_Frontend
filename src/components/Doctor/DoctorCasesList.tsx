@@ -147,22 +147,36 @@ export function DoctorCasesList({ onOpenChat }: DoctorCasesListProps = {}) {
     if (!profile) return;
 
     try {
-      const { data, error } = await supabase
+      // First, get all cases
+      const { data: casesData, error: casesError } = await supabase
         .from('medical_cases')
-        .select(`
-          *,
-          patient:user_profiles!medical_cases_patient_id_fkey(full_name, age)
-        `)
+        .select('*')
         .or(`status.eq.pending,doctor_id.eq.${profile.id}`)
         .is('hidden_from_doctor', null)
         .order('emergency_level', { ascending: false })
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (casesError) throw casesError;
+
+      // Then fetch patient data for each case
+      const casesWithPatients = await Promise.all(
+        (casesData || []).map(async (caseItem) => {
+          const { data: patientData } = await supabase
+            .from('user_profiles')
+            .select('full_name, age')
+            .eq('id', caseItem.patient_id)
+            .single();
+
+          return {
+            ...caseItem,
+            patient: patientData || { full_name: 'Unknown Patient', age: null }
+          };
+        })
+      );
       
       // Sort by emergency priority: critical > high > medium > low
       const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-      const sorted = (data || []).sort((a, b) => {
+      const sorted = casesWithPatients.sort((a, b) => {
         const priorityDiff = priorityOrder[a.emergency_level as keyof typeof priorityOrder] - 
                             priorityOrder[b.emergency_level as keyof typeof priorityOrder];
         if (priorityDiff !== 0) return priorityDiff;
