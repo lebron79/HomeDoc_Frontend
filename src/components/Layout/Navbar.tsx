@@ -93,17 +93,22 @@ export function Navbar() {
       if (!profile || profile.role !== 'doctor') return;
 
       try {
-        // Count all pending cases (not yet assigned to any doctor)
-        const { data, count, error } = await supabase
+        // Get all pending cases
+        const { data: allCases, error } = await supabase
           .from('medical_cases')
-          .select('*, user_profiles!medical_cases_patient_id_fkey(full_name, email)', { count: 'exact' })
+          .select('*, user_profiles!medical_cases_patient_id_fkey(full_name, email)')
           .eq('status', 'pending')
-          .order('created_at', { ascending: false })
-          .limit(5);
+          .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setPendingCasesCount(count || 0);
-        setPendingCases(data || []);
+
+        // Filter to show only: unassigned cases OR cases assigned to this doctor
+        const filteredCases = (allCases || []).filter(caseItem => 
+          !caseItem.doctor_id || caseItem.doctor_id === profile.id
+        );
+
+        setPendingCasesCount(filteredCases.length);
+        setPendingCases(filteredCases.slice(0, 5)); // Show only first 5
       } catch (error) {
         console.error('Error loading pending cases:', error);
       }
