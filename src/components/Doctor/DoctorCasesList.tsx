@@ -147,22 +147,32 @@ export function DoctorCasesList({ onOpenChat }: DoctorCasesListProps = {}) {
     if (!profile) return;
 
     try {
-      // First, get all cases
-      // Show: 1) Pending cases with no specific doctor OR assigned to this doctor
-      //       2) Cases already accepted by this doctor
+      // Get all cases for this doctor
       const { data: casesData, error: casesError } = await supabase
         .from('medical_cases')
         .select('*')
-        .or(`and(status.eq.pending,or(doctor_id.is.null,doctor_id.eq.${profile.id})),doctor_id.eq.${profile.id}`)
-        .is('hidden_from_doctor', null)
-        .order('emergency_level', { ascending: false })
-        .order('created_at', { ascending: false });
+        .is('hidden_from_doctor', null);
+
+      if (casesError) throw casesError;
+
+      // Filter cases: show only unassigned pending OR cases for this doctor
+      const filteredCases = (casesData || []).filter(caseItem => {
+        // Show if it's assigned to this doctor (any status)
+        if (caseItem.doctor_id === profile.id) return true;
+        
+        // Show if it's pending AND (no specific doctor OR assigned to this doctor)
+        if (caseItem.status === 'pending' && (!caseItem.doctor_id || caseItem.doctor_id === profile.id)) {
+          return true;
+        }
+        
+        return false;
+      });
 
       if (casesError) throw casesError;
 
       // Then fetch patient data for each case
       const casesWithPatients = await Promise.all(
-        (casesData || []).map(async (caseItem) => {
+        filteredCases.map(async (caseItem) => {
           const { data: patientData } = await supabase
             .from('user_profiles')
             .select('full_name, age')
