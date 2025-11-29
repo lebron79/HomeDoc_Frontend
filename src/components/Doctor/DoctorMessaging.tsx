@@ -136,11 +136,6 @@ export function DoctorMessaging({ initialCaseId, initialPatientId }: DoctorMessa
           setSelectedConversation(conversation);
         } else {
           console.log('No conversation found, creating new one for patient:', initialPatientId);
-          console.log('Current doctor profile:', profile);
-          console.log('Attempting to insert:', {
-            patient_id: initialPatientId,
-            doctor_id: profile.id,
-          });
           
           // Create new conversation
           const { data: newConv, error } = await supabase
@@ -153,11 +148,27 @@ export function DoctorMessaging({ initialCaseId, initialPatientId }: DoctorMessa
             .single();
 
           if (error) {
-            console.error('Error creating conversation:', error);
-            console.error('Full error details:', JSON.stringify(error, null, 2));
+            // If conversation already exists (duplicate key), just reload to find it
+            if (error.code === '23505') {
+              console.log('Conversation already exists, reloading...');
+              await loadConversations();
+              // Try to find and select it again after reload
+              setTimeout(() => {
+                const existingConv = conversations.find(c => c.patient?.id === initialPatientId);
+                if (existingConv) {
+                  setSelectedConversation(existingConv);
+                }
+              }, 300);
+            } else {
+              console.error('Error creating conversation:', error);
+            }
           } else if (newConv) {
             // Reload conversations to include the new one
             await loadConversations();
+            setTimeout(() => {
+              const conv = conversations.find(c => c.patient?.id === initialPatientId);
+              if (conv) setSelectedConversation(conv);
+            }, 300);
           }
         }
       }, 500);
