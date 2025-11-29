@@ -689,14 +689,14 @@ export function DoctorMessaging({ initialCaseId, initialPatientId }: DoctorMessa
                     </button>
                     
                     {showEmojiPicker && (
-                      <div className="absolute bottom-full left-0 mb-2 p-3 bg-white rounded-xl shadow-2xl border-2 border-red-200 z-50">
-                        <div className="grid grid-cols-6 gap-2">
+                      <div className="absolute bottom-full left-0 mb-2 p-4 bg-white rounded-xl shadow-2xl border-2 border-red-200 z-50 w-72">
+                        <div className="grid grid-cols-6 gap-3">
                           {emojis.map((emoji) => (
                             <button
                               key={emoji}
                               type="button"
                               onClick={() => addEmoji(emoji)}
-                              className="text-2xl hover:scale-125 transition-transform p-1 hover:bg-red-50 rounded"
+                              className="text-3xl hover:scale-125 transition-transform p-2 hover:bg-red-50 rounded flex items-center justify-center"
                             >
                               {emoji}
                             </button>
