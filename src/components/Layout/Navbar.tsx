@@ -165,21 +165,29 @@ export function Navbar() {
                 <span className="text-sm font-medium">Home</span>
               </Link>
               
-              <Link
-                to={
-                  profile?.role === 'patient' 
+              <button
+                onClick={() => {
+                  const dashboardPath = profile?.role === 'patient' 
                     ? '/patient-dashboard' 
                     : profile?.role === 'doctor' 
                     ? '/doctor-dashboard' 
                     : profile?.role === 'admin'
                     ? '/admin'
-                    : '/'
-                }
+                    : '/';
+                  
+                  // Force reload by navigating to home first if already on dashboard
+                  if (window.location.pathname === dashboardPath) {
+                    navigate('/');
+                    setTimeout(() => navigate(dashboardPath), 0);
+                  } else {
+                    navigate(dashboardPath);
+                  }
+                }}
                 className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50"
               >
                 <UserCheck className="w-4 h-4" />
                 <span className="text-sm font-medium">Dashboard</span>
-              </Link>
+              </button>
               
               <Link
                 to="/health-assessment"

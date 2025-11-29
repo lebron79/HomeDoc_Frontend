@@ -447,16 +447,16 @@ export function MedicationManagement() {
             }
           `}</style>
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
-            <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full h-[85vh] flex flex-col">
+            <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col">
               <div className="p-4 border-b border-gray-200 flex-shrink-0">
                 <h3 className="text-xl font-bold text-gray-900">
                   {editingMed ? 'Edit Medication' : 'Add New Medication'}
                 </h3>
               </div>
 
-              <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
+              <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
                 <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid md:grid-cols-2 gap-4 pb-4">
                 {/* Name */}
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -680,7 +680,7 @@ export function MedicationManagement() {
             </div>
 
               {/* Form Actions */}
-              <div className="flex gap-3 p-4 border-t border-gray-200 bg-gray-50 sticky bottom-0">
+              <div className="flex gap-3 p-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
                 <button
                   type="submit"
                   disabled={submitting}
