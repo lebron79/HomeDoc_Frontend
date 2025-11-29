@@ -260,8 +260,28 @@ export function DoctorCasesList({ onOpenChat }: DoctorCasesListProps = {}) {
 
       if (error) throw error;
       await loadCases();
+      // After marking in progress, open chat for this case
+      const caseItem = cases.find(c => c.id === caseId);
+      if (caseItem) {
+        handleOpenChat(caseItem);
+      }
     } catch (error) {
       console.error('Error updating case:', error);
+    }
+  };
+
+  const handleMarkCompleted = async (caseId: string) => {
+    try {
+      const { error } = await supabase
+        .from('medical_cases')
+        .update({ status: 'completed' })
+        .eq('id', caseId);
+
+      if (error) throw error;
+      await loadCases();
+    } catch (error) {
+      console.error('Error completing case:', error);
+      alert('Failed to mark case as done. Please try again.');
     }
   };
 
@@ -435,13 +455,22 @@ export function DoctorCasesList({ onOpenChat }: DoctorCasesListProps = {}) {
                       </>
                     )}
                     {caseItem.status === 'in_progress' && caseItem.doctor_id === profile?.id && (
-                      <button
-                        onClick={() => handleOpenChat(caseItem)}
-                        className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2 font-semibold border border-cyan-600"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                        Chat
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleOpenChat(caseItem)}
+                          className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2 font-semibold border border-cyan-600"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          Chat
+                        </button>
+                        <button
+                          onClick={() => handleMarkCompleted(caseItem.id)}
+                          className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-emerald-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2 font-semibold border border-emerald-600"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                          Mark Done
+                        </button>
+                      </>
                     )}
                     <button
                       onClick={() => setExpandedCase(expandedCase === caseItem.id ? null : caseItem.id)}

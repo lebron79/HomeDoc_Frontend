@@ -66,14 +66,45 @@ export function DoctorDashboard() {
     setActiveTab('messages');
   };
 
-  // Static data for demonstration
-  const staticStats = {
-    totalPatients: 1247,
-    activeCases: 23,
-    completedToday: 8,
-    avgResponseTime: '2.3 hours',
+  // Dynamic stats
+  const [stats, setStats] = useState({
+    totalPatients: 0,
+    activeCases: 0,
+    completedCases: 0,
+    avgResponseTime: '—',
     accuracy: 94.2,
-    patientSatisfaction: 4.8
+    patientSatisfaction: 4.8,
+  });
+
+  const loadStats = async () => {
+    if (!profile) return;
+    try {
+      const { count: patientsCount } = await supabase
+        .from('user_profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'patient');
+
+      const { count: activeCount } = await supabase
+        .from('medical_cases')
+        .select('*', { count: 'exact', head: true })
+        .eq('doctor_id', profile.id)
+        .in('status', ['accepted', 'in_progress']);
+
+      const { count: completedCount } = await supabase
+        .from('medical_cases')
+        .select('*', { count: 'exact', head: true })
+        .eq('doctor_id', profile.id)
+        .eq('status', 'completed');
+
+      setStats(prev => ({
+        ...prev,
+        totalPatients: patientsCount || 0,
+        activeCases: activeCount || 0,
+        completedCases: completedCount || 0,
+      }));
+    } catch (e) {
+      console.error('Error loading stats', e);
+    }
   };
 
   const trendingDiseases = [
@@ -169,6 +200,7 @@ export function DoctorDashboard() {
 
   useEffect(() => {
     loadUnreadMessageCount();
+    loadStats();
     
     // Set up real-time subscription for unread messages
     const channel = supabase
@@ -233,7 +265,7 @@ export function DoctorDashboard() {
             <Users className="w-5 h-5 text-red-500" />
             <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Patients</span>
           </div>
-          <p className="text-3xl font-semibold text-gray-900">{staticStats.totalPatients}</p>
+          <p className="text-3xl font-semibold text-gray-900">{stats.totalPatients}</p>
           <p className="text-sm text-gray-600 mt-1">Total registered</p>
         </div>
 
@@ -242,7 +274,7 @@ export function DoctorDashboard() {
             <Activity className="w-5 h-5 text-teal-600" />
             <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Active</span>
           </div>
-          <p className="text-3xl font-semibold text-gray-900">{staticStats.activeCases}</p>
+          <p className="text-3xl font-semibold text-gray-900">{stats.activeCases}</p>
           <p className="text-sm text-gray-600 mt-1">Cases in progress</p>
         </div>
 
@@ -251,8 +283,8 @@ export function DoctorDashboard() {
             <CheckCircle className="w-5 h-5 text-emerald-600" />
             <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Today</span>
           </div>
-          <p className="text-3xl font-semibold text-gray-900">{staticStats.completedToday}</p>
-          <p className="text-sm text-gray-600 mt-1">Consultations done</p>
+          <p className="text-3xl font-semibold text-gray-900">{stats.completedCases}</p>
+          <p className="text-sm text-gray-600 mt-1">Cases completed</p>
         </div>
 
         <div className="bg-white rounded-lg shadow p-5 border-t-4 border-rose-500">
@@ -381,7 +413,7 @@ export function DoctorDashboard() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-600">Avg. Response Time</span>
-                  <span className="text-sm font-semibold text-gray-900">{staticStats.avgResponseTime}</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.avgResponseTime}</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div className="bg-cyan-500 h-2 rounded-full" style={{ width: '75%' }}></div>
@@ -390,7 +422,7 @@ export function DoctorDashboard() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-600">Patient Satisfaction</span>
-                  <span className="text-sm font-semibold text-gray-900">{staticStats.patientSatisfaction}/5.0</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.patientSatisfaction}/5.0</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
                   <div className="bg-teal-500 h-2 rounded-full" style={{ width: '96%' }}></div>
@@ -399,10 +431,10 @@ export function DoctorDashboard() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-600">Diagnosis Accuracy</span>
-                  <span className="text-sm font-semibold text-gray-900">{staticStats.accuracy}%</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.accuracy}%</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
-                  <div className="bg-emerald-500 h-2 rounded-full" style={{ width: `${staticStats.accuracy}%` }}></div>
+                  <div className="bg-emerald-500 h-2 rounded-full" style={{ width: `${stats.accuracy}%` }}></div>
                 </div>
               </div>
             </div>
