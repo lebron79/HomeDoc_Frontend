@@ -18,6 +18,7 @@ import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
 import { PaymentCanceledPage } from './pages/PaymentCanceledPage';
 import { OrderHistoryPage } from './pages/OrderHistoryPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { AddMedicationPage } from './pages/AddMedicationPage';
 import { HeartbeatLoader } from './components/Layout/HeartbeatLoader';
 import { CreateCaseForm } from './components/Patient/CreateCaseForm';
 import { PatientCasesList } from './components/Patient/PatientCasesList';
@@ -181,6 +182,16 @@ function AppContent() {
               <DashboardLayout role="admin">
                 <AdminDashboard />
               </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        
+        {/* Add Medication Route - Only for Admins */}
+        <Route
+          path="/admin/add-medication"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AddMedicationPage />
             </ProtectedRoute>
           }
         />

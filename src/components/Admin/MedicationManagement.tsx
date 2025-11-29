@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import {
   Plus,
@@ -94,6 +95,7 @@ const dosageForms = [
 ];
 
 export function MedicationManagement() {
+  const navigate = useNavigate();
   const [medications, setMedications] = useState<Medication[]>([]);
   const [filteredMedications, setFilteredMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -264,7 +266,7 @@ export function MedicationManagement() {
             <p className="text-gray-600 text-sm">Manage your medication stock</p>
           </div>
           <button
-            onClick={() => setShowForm(true)}
+            onClick={() => navigate('/admin/add-medication')}
             className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
             <Plus className="w-5 h-5" />
