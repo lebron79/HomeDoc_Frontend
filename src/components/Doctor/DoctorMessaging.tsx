@@ -460,6 +460,14 @@ export function DoctorMessaging({ initialCaseId, initialPatientId }: DoctorMessa
                             className="w-12 h-12 rounded-full ring-2 ring-red-200 group-hover:ring-red-400 transition-all"
                           />
                         ) : (
+                          <div className="w-12 h-12 rounded-full ring-2 ring-red-200 group-hover:ring-red-400 transition-all bg-red-100 flex items-center justify-center">
+                            <span className="text-sm font-bold text-red-600">
+                              {conv.patient.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                          />
+                        ) : (
                           <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center ring-2 ring-red-200 group-hover:ring-red-400 transition-all">
                             <User className="w-6 h-6 text-red-600" />
                           </div>
@@ -514,12 +522,20 @@ export function DoctorMessaging({ initialCaseId, initialPatientId }: DoctorMessa
                     className={`flex ${isSentByMe ? 'justify-end' : 'justify-start'} animate-fadeIn`}
                   >
                     <div className="flex items-end gap-2 max-w-[75%]">
-                      {!isSentByMe && selectedConversation.patient.avatar && (
-                        <img
-                          src={getAvatarUrl(selectedConversation.patient.avatar) || ''}
-                          alt=""
-                          className="w-8 h-8 rounded-full ring-2 ring-red-200 flex-shrink-0"
-                        />
+                      {!isSentByMe && (
+                        selectedConversation.patient.avatar ? (
+                          <img
+                            src={getAvatarUrl(selectedConversation.patient.avatar) || ''}
+                            alt=""
+                            className="w-8 h-8 rounded-full ring-2 ring-red-200 flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full ring-2 ring-red-200 flex-shrink-0 bg-red-100 flex items-center justify-center">
+                            <span className="text-xs font-semibold text-red-600">
+                              {selectedConversation.patient.full_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                            </span>
+                          </div>
+                        )
                       )}
                       <div
                         className={`rounded-2xl px-4 py-3 shadow-md ${

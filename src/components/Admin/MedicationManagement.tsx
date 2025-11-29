@@ -429,16 +429,17 @@ export function MedicationManagement() {
 
       {/* Add/Edit Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full my-8">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full my-8 max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b border-gray-200 flex-shrink-0">
               <h3 className="text-2xl font-bold text-gray-900">
                 {editingMed ? 'Edit Medication' : 'Add New Medication'}
               </h3>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6">
-              <div className="grid md:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+              <div className="p-6">
+                <div className="grid md:grid-cols-2 gap-6">
                 {/* Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -552,16 +553,30 @@ export function MedicationManagement() {
                 </div>
 
                 {/* Image URL */}
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Image URL (Optional)
                   </label>
                   <input
                     type="url"
+                    placeholder="https://example.com/image.jpg"
                     value={formData.image_url}
                     onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
+                  {formData.image_url && (
+                    <div className="mt-3">
+                      <p className="text-xs text-gray-600 mb-2">Image Preview:</p>
+                      <img 
+                        src={formData.image_url} 
+                        alt="Preview" 
+                        className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
@@ -645,9 +660,10 @@ export function MedicationManagement() {
                   </label>
                 </div>
               </div>
+            </div>
 
               {/* Form Actions */}
-              <div className="flex gap-3 mt-8">
+              <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50 sticky bottom-0">
                 <button
                   type="submit"
                   disabled={submitting}
