@@ -34,19 +34,6 @@ export function LoginForm({ onBack }: { onBack: () => void }) {
     setLoading(true);
 
     try {
-      // First check if user exists
-      const { data: userData, error: userError } = await supabase
-        .from('user_profiles')
-        .select('email')
-        .eq('email', email)
-        .maybeSingle();
-
-      if (userError || !userData) {
-        setError('Account not found. Please check your email or sign up.');
-        setLoading(false);
-        return;
-      }
-
       await signIn(email, password);
       
       // Save or remove email based on "Remember Me" checkbox
@@ -62,12 +49,7 @@ export function LoginForm({ onBack }: { onBack: () => void }) {
         navigate('/dashboard');
       }, 1500);
     } catch (err: any) {
-      // If email exists but login failed, it's wrong password
-      if (err.message?.includes('Invalid') || err.message?.includes('credentials')) {
-        setError('Invalid credentials. Please check your password.');
-      } else {
-        setError(err.message || 'Failed to sign in');
-      }
+      setError(err.message || 'Failed to sign in');
     } finally {
       setLoading(false);
     }
