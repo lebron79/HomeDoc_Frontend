@@ -39,7 +39,7 @@ export function LoginForm({ onBack }: { onBack: () => void }) {
         .from('user_profiles')
         .select('email')
         .eq('email', email)
-        .single();
+        .maybeSingle();
 
       if (userError || !userData) {
         setError('Account not found. Please check your email or sign up.');
