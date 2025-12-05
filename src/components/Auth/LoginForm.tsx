@@ -35,13 +35,13 @@ export function LoginForm({ onBack }: { onBack: () => void }) {
 
     try {
       // First check if user exists
-      const { data: userData } = await supabase
+      const { data: userData, error: userError } = await supabase
         .from('user_profiles')
         .select('email')
         .eq('email', email)
         .single();
 
-      if (!userData) {
+      if (userError || !userData) {
         setError('Account not found. Please check your email or sign up.');
         setLoading(false);
         return;
