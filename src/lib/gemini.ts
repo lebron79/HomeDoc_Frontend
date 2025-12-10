@@ -16,26 +16,47 @@ export interface GeminiResponse {
  * Helper function to call Grok API via Supabase Edge Function
  */
 async function callGrokAPI(messages: Array<{role: string; content: string}>, temperature: number = 0.7, maxTokens: number = 1024): Promise<string> {
-  const response = await fetch(SUPABASE_FUNCTION_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-    },
-    body: JSON.stringify({
-      messages: messages,
-      temperature: temperature,
-      max_tokens: maxTokens
-    })
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Grok API error: ${response.status} - ${error}`);
+  try {
+    const response = await fetch(SUPABASE_FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({
+        messages: messages,
+        temperature: temperature,
+        max_tokens: maxTokens
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Edge Function error:', error);
+      throw new Error(`Grok API error: ${response.status} - ${error}`);
+    }
+
+    const data = await response.json();
+    console.log('Edge Function response:', data);
+    
+    if (!data.content) {
+      throw new Error('No content in response');
+    }
+    
+    return data.content;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timeout - AI taking too long to respond');
+    }
+    throw error;
   }
-
-  const data = await response.json();
-  return data.content;
 }
 
 /** 
