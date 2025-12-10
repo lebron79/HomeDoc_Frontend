@@ -5,7 +5,6 @@ const p3 = 'rHZ7fIq7BNTQDZ4LCWpPRaN';
 const GROK_API_KEY = p1 + p2 + p3;
 const GROK_MODEL = 'llama-3.3-70b-versatile';
 const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
-const CORS_PROXY = 'https://corsproxy.io/?';
 
 export interface GeminiResponse {
   diagnosis: string;
@@ -20,12 +19,14 @@ export interface GeminiResponse {
  * Helper function to call Grok API
  */
 async function callGrokAPI(messages: Array<{role: string; content: string}>, temperature: number = 0.7, maxTokens: number = 1024): Promise<string> {
-  const response = await fetch(CORS_PROXY + encodeURIComponent(GROK_API_URL), {
+  // Use allorigins.win as CORS proxy - more reliable than corsproxy.io
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(GROK_API_URL)}`;
+  
+  const response = await fetch(proxyUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${GROK_API_KEY}`,
-      'x-requested-with': 'XMLHttpRequest'
+      'Authorization': `Bearer ${GROK_API_KEY}`
     },
     body: JSON.stringify({
       model: GROK_MODEL,
